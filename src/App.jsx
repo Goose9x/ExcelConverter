@@ -247,14 +247,19 @@ export default function ExcelConverter() {
         processCombo(line, currentObject);
         return;
       } else if (isPersonalizationLine(line)) {
-        currentPersonalization = processPersonalization(
-          line,
-          currentObject,
-          currentPersonalization
-        );
+        line = line.split(":");
+        if (!currentPersonalization) {
+          currentObject["Personal"] = line[1];
+        }
+
+        if (!currentObject["Type"] && !currentObject["Style"]) {
+          currentObject["Type"] = "";
+          currentObject["Size"] = "";
+        }
         if (Object.keys(currentObject).length > 0) {
           result.push(currentObject);
         }
+        currentObject = {};
         return;
       } else {
         currentObject["Personal"] = (currentObject["Personal"] || "") + line;

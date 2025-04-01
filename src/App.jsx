@@ -3,7 +3,7 @@ import * as XLSX from "xlsx";
 import moment from "moment";
 import "./App.css";
 
-export default function ExcelConverter() {
+export default function App() {
   const [convertedData, setConvertedData] = useState([]);
   const [excelName, setExcelName] = useState("converted");
   const handleFileUpload = (e) => {
@@ -158,12 +158,6 @@ export default function ExcelConverter() {
       return time;
     }
   };
-  const handleExport = () => {
-    const ws = XLSX.utils.json_to_sheet(convertedData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, excelName);
-    XLSX.writeFile(wb, excelName + "_converted.xlsx");
-  };
 
   // Xử lý NOTES
   const isTypeOrStyleLine = (line) =>
@@ -200,24 +194,6 @@ export default function ExcelConverter() {
     }
   };
 
-  const processPersonalization = (
-    line,
-    currentObject,
-    currentPersonalization
-  ) => {
-    const parts = line.split(":");
-    if (!currentPersonalization) {
-      currentObject["Personal"] = parts[1];
-    }
-
-    if (!currentObject["Type"] && !currentObject["Style"]) {
-      currentObject["Type"] = "";
-      currentObject["Size"] = "";
-    }
-
-    return parts;
-  };
-
   const processKeyValueLine = (line, currentObject) => {
     let parts = line.includes("::") ? line.split("::") : line.split(":");
     parts = parts.filter((item) => item.trim() !== "");
@@ -231,26 +207,26 @@ export default function ExcelConverter() {
     const lines = parseLines(note);
     const result = [];
     let currentObject = {};
-    let currentPersonalization = "";
 
     lines.forEach((line) => {
       if (isTypeOrStyleLine(line)) {
-        currentPersonalization = "";
+        if (currentObject["Personal"]) {
+          currentObject = {};
+        }
         if (Object.keys(currentObject).length > 0) {
           result.push(currentObject);
         }
         currentObject = {};
       } else if (isSizeLine(line)) {
-        currentPersonalization = "";
       } else if (isComboLine(line)) {
-        currentPersonalization = "";
         processCombo(line, currentObject);
         return;
       } else if (isPersonalizationLine(line)) {
-        line = line.split(":");
-        if (!currentPersonalization) {
-          currentObject["Personal"] = line[1];
+        if (currentObject["Personal"]) {
+          currentObject = {};
         }
+        line = line.split(":");
+        currentObject["Personal"] = line[1];
 
         if (!currentObject["Type"] && !currentObject["Style"]) {
           currentObject["Type"] = "";
@@ -259,17 +235,10 @@ export default function ExcelConverter() {
         if (Object.keys(currentObject).length > 0) {
           result.push(currentObject);
         }
-        currentObject = {};
         return;
       } else {
-        currentObject["Personal"] = (currentObject["Personal"] || "") + line;
-        if (!currentObject["Type"] || !currentObject["Style"]) {
-          currentObject["Type"] = "";
-          currentObject["Size"] = "";
-          if (Object.keys(currentObject).length > 0) {
-            result.push(currentObject);
-          }
-        }
+        currentObject["Personal"] =
+          (currentObject["Personal"] || "") + "\r\n" + line;
         return;
       }
 
@@ -279,12 +248,14 @@ export default function ExcelConverter() {
     if (Object.keys(currentObject).length > 0) {
       result.push(currentObject);
     }
-
-    console.log(previousData["Name"]);
-    console.log(result);
     return result;
   };
-
+  const handleExport = () => {
+    const ws = XLSX.utils.json_to_sheet(convertedData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, excelName);
+    XLSX.writeFile(wb, excelName + "_converted.xlsx");
+  };
   return (
     <div className="p-4 space-y-4">
       <h1 className="text-xl font-bold">Tycheco Excel Converter</h1>

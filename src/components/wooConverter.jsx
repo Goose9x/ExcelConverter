@@ -37,7 +37,10 @@ export default function ShopifyConverter({ onSendData, setUploadName }) {
             Email: row["( Billing ) Email"],
             "Customer Notes": row["( Order ) Customer Note"], // Trống
             Personalization: row["( Order Item )Your Text (Optional)"],
-            Type: getFirstStype(row["( Order Item )Style:"]),
+            Type: getFirstStype(row["( Order Item )Style:"]).replace(
+              /\s\(\+\$\d+\)/,
+              ""
+            ),
             Size: getFirstStype(row["( Order Item )Size:"]),
             Notes: "",
             "( Order Item ) Product Image Link":

@@ -21,8 +21,8 @@ export default function App() {
   const handleExport = () => {
     const ws = XLSX.utils.json_to_sheet(convertedData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, shopifyName + "-" + wooName);
-    XLSX.writeFile(wb, shopifyName + "-" + wooName + "_converted.xlsx");
+    XLSX.utils.book_append_sheet(wb, ws, "shopify-woo");
+    XLSX.writeFile(wb, "shopify-woo" + "_converted.xlsx");
   };
   return (
     <div id="main-container">

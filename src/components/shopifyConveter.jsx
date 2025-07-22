@@ -171,6 +171,9 @@ export default function ShopifyConverter({ onSendData, setUploadName }) {
 
   const isComboLine = (line) => line.startsWith("Combo");
 
+  const isMarkMaterialLine = (line) =>
+  line.startsWith("Materials") || line.startsWith("High Quality Material");
+  
   const parseLines = (note) => {
     const lines = note.split(/\r?\n/);
     return lines.filter((line) => line && !line.startsWith("_"));
@@ -204,6 +207,10 @@ export default function ShopifyConverter({ onSendData, setUploadName }) {
     let currentObject = {};
 
     lines.forEach((line) => {
+      if (isMarkMaterialLine(line)) {
+        console.log(line);
+        line = "";
+      }
       if (isTypeOrStyleLine(line)) {
         if (currentObject["Personal"]) {
           currentObject = {};

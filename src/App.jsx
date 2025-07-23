@@ -31,7 +31,7 @@ export default function App() {
         setUploadName={setShopifyName}
       />
       <WooConverter onSendData={handleDataFromWoo} setUploadName={setWooName} />
-      {convertedData.length > 0 && shopifyName  && (
+      {convertedData.length > 0 && shopifyName && wooName && (
         <>
           <div>
             <button
